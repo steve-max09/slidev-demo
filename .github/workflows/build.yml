@@ -1,11 +1,66 @@
-name: Main CI workflow
+name: Docker build & push
+
 on:
   push:
+    branches:
+      - main
+    tags:
+      - '*'
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    env:
+      CI_COMMIT_SHA: ${{ github.sha }}
+      CI_COMMIT_SHORT_SHA: ${{ github.sha.substring(0, 8) }}
+      CI_COMMIT_REF_NAME: ${{ github.ref_name }}
+      CI_COMMIT_TIMESTAMP: ${{ github.event.head_commit.timestamp }}
+      CI_COMMIT_TITLE: ${{ github.event.head_commit.message }}
+      CI_PROJECT_URL: ${{ github.server_url }}/${{ github.repository }}
+      CI_REGISTRY_IMAGE: ${{ secrets.CI_REGISTRY_IMAGE }}
+      CI_REGISTRY: ${{ secrets.CI_REGISTRY }}
+      CI_REGISTRY_USER: ${{ secrets.CI_REGISTRY_USER }}
+      CI_REGISTRY_PASSWORD: ${{ secrets.CI_REGISTRY_PASSWORD }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Build project
-        run: echo "build"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.CI_REGISTRY }}
+          username: ${{ env.CI_REGISTRY_USER }}
+          password: ${{ env.CI_REGISTRY_PASSWORD }}
+
+      - name: Show registry image
+        run: echo "CI_REGISTRY_IMAGE=${CI_REGISTRY_IMAGE}"
+
+      - name: Create version file
+        run: |
+          echo "commit ${CI_COMMIT_SHA}" | tee ./public/version.txt
+          echo "Date ${CI_COMMIT_TIMESTAMP}" | tee -a ./public/version.txt
+          echo "${CI_COMMIT_TITLE}" | tee -a ./public/version.txt
+
+      - name: Build and push Docker image
+        if: >
+          startsWith(github.ref, 'refs/heads/main') ||
+          (startsWith(github.ref, 'refs/tags/') &&
+           matches(github.ref_name, '^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}.*$'))
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          pull: true
+          push: true
+          tags: |
+            ${{ env.CI_REGISTRY_IMAGE }}
+            ${{ env.CI_REGISTRY_IMAGE }}:${{ env.CI_COMMIT_REF_NAME }}
+          build-args: |
+            IMAGE_URL=${{ env.CI_PROJECT_URL }}
+            IMAGE_SOURCE=${{ env.CI_REGISTRY_IMAGE }}
+            IMAGE_REVISION=${{ env.CI_COMMIT_SHORT_SHA }}
+            IMAGE_CREATED=${{ env.CI_COMMIT_TIMESTAMP }}
