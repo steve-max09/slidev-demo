@@ -1,6 +1,8 @@
 ---
 # try also 'default' to start simple
 theme: default
+addons:
+  - slidev-addon-excalidraw
 # random image from a curated Unsplash collection by Anthony
 # like them? see https://unsplash.com/collections/94734566/slidev
 background: https://cover.sli.dev
@@ -41,33 +43,6 @@ h1 {
 </style>
 
 ---
-transition: slide-up
-level: 2
----
-
-# Navigation
-
-Hover on the bottom-left corner to see the navigation's controls panel, [learn more](https://sli.dev/guide/ui#navigation-bar)
-
-## Keyboard Shortcuts
-
-|                                                     |                             |
-| --------------------------------------------------- | --------------------------- |
-| <kbd>right</kbd> / <kbd>space</kbd>                 | next animation or slide     |
-| <kbd>left</kbd>  / <kbd>shift</kbd><kbd>space</kbd> | previous animation or slide |
-| <kbd>up</kbd>                                       | previous slide              |
-| <kbd>down</kbd>                                     | next slide                  |
-
-<!-- https://sli.dev/guide/animations.html#click-animation -->
-<img
-  v-click
-  class="absolute -bottom-9 -left-7 w-80 opacity-50"
-  src="https://sli.dev/assets/arrow-bottom-left.svg"
-  alt=""
-/>
-<p v-after class="absolute bottom-23 left-45 opacity-30 transform -rotate-10">Here!</p>
-
----
 layout: two-cols
 layoutClass: gap-16
 ---
@@ -86,35 +61,36 @@ The title will be inferred from your slide content, or you can override it with 
 
 <Toc text-sm minDepth="1" maxDepth="2" />
 
----
-layout: image-right
-image: https://cover.sli.dev
----
-
 # Code
 
-Use code snippets and get the highlighting directly, and even types hover!
+<div class="flex flex-col items-center">
 
-```ts [filename-example.ts] {all|4|6|6-7|9|all} twoslash
-// TwoSlash enables TypeScript hover information
-// and errors in markdown code blocks
-// More at https://shiki.style/packages/twoslash
-import { computed, ref } from 'vue'
+# slidev-addon-excalidraw
 
-const count = ref(0)
-const doubled = computed(() => count.value * 2)
+<Excalidraw
+  drawFilePath="./diagrammes/archi-app-tp-1.excalidraw.json"
+  class="w-[600px]"
+  :darkMode="false"
+  :background="false"
+/>
 
-doubled.value = 2
-```
+</div>
 
-<arrow v-click="[4, 5]" x1="350" y1="310" x2="195" y2="342" color="#953" width="2" arrowSize="1" />
+---
+layout: center
+---
+<div class="flex flex-col items-center">
 
-<!-- This allow you to embed external code blocks -->
-<<< @/snippets/external.ts#snippet
+# slidev-addon-excalidraw
 
-<!-- Footer -->
+<Excalidraw
+  drawFilePath="./diagrammes/archi-app-tp-4.excalidraw.json"
+  class="w-[600px]"
+  :darkMode="false"
+  :background="false"
+/>
 
-[Learn more](https://sli.dev/features/line-highlighting)
+</div>
 
 <!-- Inline style -->
 <style>

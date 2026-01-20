@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "slidev-addon-excalidraw": "^1.0.4"
+  }
+}
